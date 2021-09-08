@@ -63,7 +63,6 @@
 import SockJS from 'sockjs-client'
 import Stomp from 'webstomp-client'
 export default {
-  name: 'Websocketdemo',
   data () {
     return {
       received_messages: [],
@@ -123,6 +122,9 @@ export default {
   border: solid 1px red;
 }
 #send {
+  border: solid 1px teal;
+}
+#name {
   border: solid 1px teal;
 }
 </style>
