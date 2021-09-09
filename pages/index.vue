@@ -7,15 +7,15 @@
             <div class="col-md-6">
               <form class="form-inline">
                 <div class="form-group">
-                  <label for="connect">WebSocket connection:</label>
-                  <button id="connect" class="btn btn-default" type="submit" :disabled="connected == true" @click.prevent="connect">
+                  <label for="connect">{{ $store.state.welcome }}</label>
+                  <button id="connect" class="btn btn-default" type="submit" :disabled="isConnected == true" @click.prevent="connect">
                     Connect
                   </button>
-                  <button id="disconnect" class="btn btn-default" type="submit" :disabled="connected == false" @click.prevent="disconnect">
+                  <button id="disconnect" class="btn btn-default" type="submit" :disabled="isConnected == false" @click.prevent="disconnect">
                     Disconnect
                   </button>
                   <div>
-                    <h1 v-if="connected" style="color: green;">
+                    <h1 v-if="isConnected" style="color: green;">
                       Connected! 😃
                     </h1>
                     <h1 v-else style="color: red;">
@@ -46,7 +46,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in received_messages" :key="item">
+                  <tr v-for="(item,index) in isReceivedMessages" :key="index">
                     <td>{{ item }}</td>
                   </tr>
                 </tbody>
@@ -60,55 +60,32 @@
 </template>
 
 <script>
-import SockJS from 'sockjs-client'
-import Stomp from 'webstomp-client'
+import { mapGetters } from 'vuex'
+
 export default {
   data () {
     return {
-      received_messages: [],
-      send_message: null,
-      connected: false
+      send_message: null
     }
   },
+  computed: {
+    ...mapGetters(['isConnected', 'isReceivedMessages'])
+  },
   mounted () {
-    this.connect()
+    this.$store.dispatch('serverConnect')
   },
   methods: {
     send () {
-      console.log('Send message:' + this.send_message)
-      if (this.stompClient && this.stompClient.connected) {
-        const msg = { name: this.send_message }
-        console.log(JSON.stringify(msg))
-        this.stompClient.send('/app/hello', JSON.stringify(msg), {})
-      }
+      this.$store.dispatch('sendMessage', this.send_message)
     },
     connect () {
-      this.socket = new SockJS('http://localhost:8080/gs-guide-websocket')
-      this.stompClient = Stomp.over(this.socket)
-      this.stompClient.connect(
-        {},
-        (frame) => {
-          this.connected = true
-          console.log(frame)
-          this.stompClient.subscribe('/topic/greetings', (tick) => {
-            console.log(tick)
-            this.received_messages.push(JSON.parse(tick.body).content)
-          })
-        },
-        (error) => {
-          console.log(error)
-          this.connected = false
-        }
-      )
+      this.$store.dispatch('serverConnect')
     },
     disconnect () {
-      if (this.stompClient) {
-        this.stompClient.disconnect()
-      }
-      this.connected = false
+      this.$store.dispatch('serverDisconnect')
     },
     tickleConnection () {
-      this.connected ? this.disconnect() : this.connect()
+      this.$store.dispatch('tickleConnection')
     }
   }
 }
