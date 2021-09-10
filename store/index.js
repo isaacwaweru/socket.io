@@ -30,7 +30,7 @@ export const mutations = {
     state.connected = payload
   },
 
-  // Disconnect WS server
+  // Mutate messages
   RECEIVED_MESSSAGES (state, payload) {
     state.received_messages.push(payload)
   }

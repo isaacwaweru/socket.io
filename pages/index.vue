@@ -16,7 +16,7 @@
                   </button>
                   <div>
                     <h1 v-if="isConnected" style="color: green;">
-                      Connected! 😃
+                      Connected!😃
                     </h1>
                     <h1 v-else style="color: red;">
                       Disconnected!😢
